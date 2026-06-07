@@ -1,5 +1,5 @@
 import asyncio
-from core.client import run 
+from ocpp_simulator.client import run 
 
 if __name__ == "__main__":
     asyncio.run(run())
