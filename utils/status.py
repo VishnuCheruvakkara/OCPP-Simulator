@@ -16,3 +16,9 @@ class OCPPAction(str, Enum):
     STATUS_NOTIFICATION = "StatusNotification"
     HEARTBEAT = "Heartbeat"
     DATA_TRANSFER = "DataTransfer"
+
+    REMOTE_START_TRANSACTION = "RemoteStartTransaction"
+    REMOTE_STOP_TRANSACTION = "RemoteStopTransaction"
+    RESET = "Reset"
+
+    METER_VALUES = "MeterValues"

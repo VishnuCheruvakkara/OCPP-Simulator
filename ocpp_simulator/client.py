@@ -6,8 +6,10 @@ from utils.status import ChargePointStatus, OCPPMessageType, OCPPAction
 from .messages import boot_notification,status_notification
 from .heartbeat import heartbeat_loop
 
-
 async def run():
+    """
+    Connect to OCPP server and handle message exchange.
+    """
     logger.info(f"Connecting to: {OCPP_URL}")
     try:
         async with websockets.connect(OCPP_URL, subprotocols=["ocpp1.6"]) as ws:
@@ -21,15 +23,12 @@ async def run():
             while True:
                 try:
                     msg = await ws.recv()
-                    data = log_message(msg)
+                    parsed=log_message(msg)
                     
-                    
-                    if(data[0] == OCPPMessageType.CALLRESULT.value and isinstance(data[2],dict) and "interval" in data[2] and not heartbeat_started):
+                    if(parsed.msg_type == OCPPMessageType.CALLRESULT and isinstance(parsed.payload,dict) and "interval" in parsed.payload and not heartbeat_started):
                         heartbeat_started = True 
 
-                        interval = data[2]["interval"]
-
-                        logger.info(f"Heartbeat interval is : {interval}")
+                        interval = parsed.payload["interval"]
 
                         asyncio.create_task(
                             heartbeat_loop(ws, interval)

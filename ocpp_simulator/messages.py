@@ -3,10 +3,16 @@ import uuid
 from config import MODEL,VENDOR
 from utils.status import OCPPAction, OCPPMessageType
 
-def new_id():
+def new_id() -> str:
+    """
+    Generate a unique OCPP message id.
+    """
     return str(uuid.uuid4())
 
-def boot_notification():
+def boot_notification() -> str:
+    """
+    Create BootNotification request message.
+    """
     return json.dumps([
         OCPPMessageType.CALL,
         new_id(),
@@ -17,7 +23,10 @@ def boot_notification():
         }
     ])
 
-def heartbeat():
+def heartbeat() -> str:
+    """
+    Create Heartbeat request message.
+    """
     return json.dumps([
         OCPPMessageType.CALL,
         new_id(),
@@ -25,7 +34,10 @@ def heartbeat():
         {}
     ])
 
-def status_notification(status,connector_id):
+def status_notification(status,connector_id: int) -> str:
+    """
+    Create StatusNotification request message.
+    """
     return json.dumps([
         OCPPMessageType.CALL,
         new_id(),

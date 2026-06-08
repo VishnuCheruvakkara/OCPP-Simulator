@@ -1,13 +1,17 @@
 import logging
 import json
 from utils.state import pending
+from utils.parser import parse_message, OCPPMessage
+from utils.status import OCPPMessageType
 
 CYAN = "\033[96m"
 RESET = "\033[0m"
 
 class PrettyFormatter(logging.Formatter):
-
-    def format(self, record):
+    """
+    Format log record for pretty console output.
+    """
+    def format(self, record: logging.LogRecord) -> str:
         msg = record.getMessage()
 
         header = f"{self.formatTime(record)} | {record.levelname}"
@@ -35,35 +39,41 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     logger.addHandler(handler)
 
+def log_message(msg: str) -> OCPPMessage:
+    """
+    Parse and log incoming OCPP message from server.
+    """
+    parsed = parse_message(msg)
 
-def log_message(msg):
-    data = json.loads(msg)
-    msg_type = data[0]
-    msg_id=data[1]
+    msg_type = parsed.msg_type
+    msg_id= parsed.msg_id
 
-    if msg_type == 3:
+    if msg_type == OCPPMessageType.CALLRESULT:
         action = pending.get(msg_id,"Message")
 
         logger.info(msg,extra={"direction":"RX","action":f"{action}.conf"})
-    elif msg_type == 2:
-        action = data[2]
+    elif msg_type == OCPPMessageType.CALL:
+        action = parsed.action
 
         logger.info(msg,extra={"direction":"RX", "action": action})
 
-    return data
+    return parsed
 
-def send_message(ws,msg,action):
-    data = json.loads(msg)
-    msg_id = data[1]
-
-    pending[msg_id] = action
+def send_message(ws,msg: str,action:str):
+    """
+    Parse,log and send outgoing OCPP message from charging pointer.
+    """
+    track_message(msg,action)
 
     logger.info(msg, extra={"direction":"TX", "action": action})
 
     return ws.send(msg)
 
-def track_message(msg, action_name):
-    data = json.loads(msg)
-    msg_id = data[1]
+def track_message(msg: str, action_name: str) -> str:
+    """
+    Store message id and action in global state pending requests.
+    """
+    parsed = parse_message(msg)
+    msg_id = parsed.msg_id
     pending[msg_id] = action_name 
     return msg_id 

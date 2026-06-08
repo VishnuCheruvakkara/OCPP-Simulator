@@ -4,7 +4,10 @@ from utils.logger import logger, track_message, send_message
 from utils.status import OCPPAction
 from ocpp_simulator.messages import heartbeat
 
-async def heartbeat_loop(ws,interval):
+async def heartbeat_loop(ws,interval: int) -> None:
+    """
+    Send heartbeat messages at configured interval.
+    """
     while True:
         await asyncio.sleep(interval)
         heartbeat_msg = heartbeat()
